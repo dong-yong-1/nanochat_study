@@ -52,8 +52,7 @@ python -m scripts.chat_sft \
     --total-batch-size=16384 \
     --eval-every=200 \
     --eval-tokens=524288 \
-    --num-iterations=1500 \
-    --run=$WANDB_RUN
+    --num-iterations=1500 
 
 # Chat with the model over CLI
 # The model should be able to say that it is Paris.
