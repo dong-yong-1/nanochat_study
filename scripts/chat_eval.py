@@ -24,6 +24,8 @@ from tasks.mmlu import MMLU
 from tasks.arc import ARC
 from tasks.gsm8k import GSM8K
 from tasks.spellingbee import SpellingBee
+from tasks.simple_dialog import SimpleDialog
+from tasks.simple_dialog_en import SimpleDialogEN
 
 # -----------------------------------------------------------------------------
 # Generative evaluation loop (we go one problem at a time, sample, evaluate)
@@ -167,6 +169,8 @@ def run_chat_eval(task_name, model, tokenizer, engine,
         'ARC-Challenge': partial(ARC, subset="ARC-Challenge", split="test"),
         'GSM8K': partial(GSM8K, subset="main", split="test"),
         'SpellingBee': partial(SpellingBee, size=256, split="test"),
+        'SimpleDialog': partial(SimpleDialog, split="test"),
+        'SimpleDialogEN': partial(SimpleDialogEN, split="test"),
     }[task_name]
     task_object = task_module()
     # Run the evaluation
@@ -206,7 +210,7 @@ if __name__ == "__main__":
     engine = Engine(model, tokenizer)
 
     # Get the tasks to evaluate on
-    all_tasks = ['ARC-Easy', 'ARC-Challenge', 'MMLU', 'GSM8K', 'HumanEval', 'SpellingBee']
+    all_tasks = ['ARC-Easy', 'ARC-Challenge', 'MMLU', 'GSM8K', 'HumanEval', 'SpellingBee', 'SimpleDialog', 'SimpleDialogEN']
     baseline_accuracies = {
         'ARC-Easy': 0.25, # multiple choice 1 of 4 => 25%
         'ARC-Challenge': 0.25, # multiple choice 1 of 4 => 25%
@@ -214,6 +218,8 @@ if __name__ == "__main__":
         'GSM8K': 0.0, # open-ended => 0%
         'HumanEval': 0.0, # open-ended => 0%
         'SpellingBee': 0.0, # open-ended => 0%
+        'SimpleDialog': 0.0, # conversational => 0% (baseline for random responses)
+        'SimpleDialogEN': 0.0, # conversational => 0% (baseline for random responses)
     }
     task_names = all_tasks if args.task_name is None else args.task_name.split('|')
 
