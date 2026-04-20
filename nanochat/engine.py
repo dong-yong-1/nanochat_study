@@ -101,13 +101,21 @@ class KVCache:
         self.v_cache = torch.zeros(num_layers, batch_size, seq_len, num_heads, head_dim, device=device, dtype=dtype)
         # Current sequence length per batch element (FA3 needs int32)
         self.cache_seqlens = torch.zeros(batch_size, dtype=torch.int32, device=device)
+        # Absolute number of tokens processed so far. RoPE positions key off this,
+        # even if we later evict old cache entries to keep the sliding window fixed.
+        self.total_seqlens = torch.zeros(batch_size, dtype=torch.int32, device=device)
 
     def reset(self):
         """Reset cache to empty state."""
         self.cache_seqlens.zero_()
+        self.total_seqlens.zero_()
 
     def get_pos(self):
-        """Get current position (assumes all batch elements at same position)."""
+        """Get absolute position of the next token (assumes uniform batch positions)."""
+        return self.total_seqlens[0].item()
+
+    def get_cache_len(self):
+        """Get number of tokens currently retained in cache."""
         return self.cache_seqlens[0].item()
 
     def get_layer_cache(self, layer_idx):
@@ -117,19 +125,52 @@ class KVCache:
     def advance(self, num_tokens):
         """Advance the cache position by num_tokens."""
         self.cache_seqlens += num_tokens
+        self.total_seqlens += num_tokens
+
+    def compact_for_append(self, num_tokens):
+        """
+        Ensure there is room to append num_tokens by evicting the oldest cache entries.
+
+        The retained cache stays contiguous in memory so it remains compatible with
+        flash_attn_with_kvcache, while absolute token positions continue to live in
+        total_seqlens for RoPE indexing.
+        """
+        assert num_tokens <= self.max_seq_len, (
+            f"Cannot append {num_tokens} tokens into cache capacity {self.max_seq_len}. "
+            "Chunk the prefill into smaller pieces first."
+        )
+        cache_len = self.get_cache_len()
+        available = self.max_seq_len - cache_len
+        if available >= num_tokens:
+            return
+
+        tokens_to_evict = num_tokens - available
+        if tokens_to_evict >= cache_len:
+            self.cache_seqlens.zero_()
+            self.k_cache.zero_()
+            self.v_cache.zero_()
+            return
+
+        retained = cache_len - tokens_to_evict
+        self.k_cache[:, :, :retained, :, :] = self.k_cache[:, :, tokens_to_evict:cache_len, :, :]
+        self.v_cache[:, :, :retained, :, :] = self.v_cache[:, :, tokens_to_evict:cache_len, :, :]
+        self.k_cache[:, :, retained:cache_len, :, :].zero_()
+        self.v_cache[:, :, retained:cache_len, :, :].zero_()
+        self.cache_seqlens.fill_(retained)
 
     def prefill(self, other):
         """
         Copy cached KV from another cache into this one.
         Used when we do batch=1 prefill and then want to generate multiple samples in parallel.
         """
-        assert self.get_pos() == 0, "Cannot prefill a non-empty KV cache"
+        assert self.get_cache_len() == 0, "Cannot prefill a non-empty KV cache"
         assert self.n_layers == other.n_layers and self.n_heads == other.n_heads and self.head_dim == other.head_dim
-        assert self.max_seq_len >= other.max_seq_len
-        other_pos = other.get_pos()
-        self.k_cache[:, :, :other_pos, :, :] = other.k_cache[:, :, :other_pos, :, :]
-        self.v_cache[:, :, :other_pos, :, :] = other.v_cache[:, :, :other_pos, :, :]
-        self.cache_seqlens.fill_(other_pos)
+        other_cache_len = other.get_cache_len()
+        assert self.max_seq_len >= other_cache_len
+        self.k_cache[:, :, :other_cache_len, :, :] = other.k_cache[:, :, :other_cache_len, :, :]
+        self.v_cache[:, :, :other_cache_len, :, :] = other.v_cache[:, :, :other_cache_len, :, :]
+        self.cache_seqlens.fill_(other_cache_len)
+        self.total_seqlens.copy_(other.total_seqlens)
 
 # -----------------------------------------------------------------------------
 @torch.inference_mode()
@@ -168,6 +209,17 @@ class Engine:
         self.tokenizer = tokenizer # needed for tool use
 
     @torch.inference_mode()
+    def _forward_with_sliding_cache(self, ids, kv_cache):
+        """Append ids into a fixed-capacity cache, chunking as needed for long prefills."""
+        chunk_size = kv_cache.max_seq_len
+        logits = None
+        for start in range(0, ids.size(1), chunk_size):
+            chunk = ids[:, start:start+chunk_size]
+            kv_cache.compact_for_append(chunk.size(1))
+            logits = self.model.forward(chunk, kv_cache=kv_cache)
+        return logits
+
+    @torch.inference_mode()
     def generate(self, tokens, num_samples=1, max_tokens=None, temperature=1.0, top_k=None, seed=42):
         """Same as generate, but does single prefill and then clones the KV cache."""
         assert isinstance(tokens, list) and isinstance(tokens[0], int), "expecting list of ints"
@@ -194,22 +246,22 @@ class Engine:
         # 1) Run a batch 1 prefill of the prompt tokens
         m = self.model.config
         kv_model_kwargs = {"num_heads": m.n_kv_head, "head_dim": m.n_embd // m.n_head, "num_layers": m.n_layer}
+        kv_capacity = m.sequence_len
         kv_cache_prefill = KVCache(
             batch_size=1,
-            seq_len=len(tokens),
+            seq_len=kv_capacity,
             device=device,
             dtype=dtype,
             **kv_model_kwargs,
         )
         ids = torch.tensor([tokens], dtype=torch.long, device=device)
-        logits = self.model.forward(ids, kv_cache=kv_cache_prefill)
+        logits = self._forward_with_sliding_cache(ids, kv_cache_prefill)
         logits = logits[:, -1, :].expand(num_samples, -1)  # (num_samples, vocab_size)
 
         # 2) Replicate the KV cache for each sample/row
-        kv_length_hint = (len(tokens) + max_tokens) if max_tokens is not None else self.model.config.sequence_len
         kv_cache_decode = KVCache(
             batch_size=num_samples,
-            seq_len=kv_length_hint,
+            seq_len=kv_capacity,
             device=device,
             dtype=dtype,
             **kv_model_kwargs,
@@ -272,6 +324,7 @@ class Engine:
 
             # Prepare logits for next iteration
             ids = torch.tensor(token_column, dtype=torch.long, device=device).unsqueeze(1)
+            kv_cache_decode.compact_for_append(ids.size(1))
             logits = self.model.forward(ids, kv_cache=kv_cache_decode)[:, -1, :]  # (B, vocab_size)
 
     def generate_batch(self, tokens, num_samples=1, **kwargs):

@@ -41,6 +41,7 @@ class MockModel:
         B, T = ids.shape
         # With FA3, flash_attn_with_kvcache updates cache in-place and we advance position
         if kv_cache is not None:
+            kv_cache.compact_for_append(T)
             kv_cache.advance(T)
         # Uniform logits -> equal probability for all tokens
         logits = torch.zeros(B, T, self.vocab_size)
@@ -101,19 +102,23 @@ def test_kv_cache_basic():
 
     # Check initial state
     assert kv_cache.get_pos() == 0
+    assert kv_cache.get_cache_len() == 0
     assert kv_cache.k_cache.shape == (num_layers, batch_size, seq_len, num_heads, head_dim)
     assert kv_cache.v_cache.shape == (num_layers, batch_size, seq_len, num_heads, head_dim)
 
     # Test advance
     kv_cache.advance(10)
     assert kv_cache.get_pos() == 10
+    assert kv_cache.get_cache_len() == 10
 
     kv_cache.advance(5)
     assert kv_cache.get_pos() == 15
+    assert kv_cache.get_cache_len() == 15
 
     # Test reset
     kv_cache.reset()
     assert kv_cache.get_pos() == 0
+    assert kv_cache.get_cache_len() == 0
 
     # Test get_layer_cache returns correct views
     k_layer0, v_layer0 = kv_cache.get_layer_cache(0)
@@ -149,10 +154,64 @@ def test_kv_cache_prefill():
 
     # Check position was copied
     assert dst_cache.get_pos() == 16
+    assert dst_cache.get_cache_len() == 16
 
     # Check data was copied
     assert (dst_cache.k_cache[0, 0, :16, :, :] == 1.0).all()
     assert (dst_cache.v_cache[0, 0, :16, :, :] == 2.0).all()
+
+
+def test_kv_cache_compact_for_append_evicts_oldest_tokens():
+    """Sliding-window cache should evict the oldest entries while preserving absolute positions."""
+    kv_cache = KVCache(
+        batch_size=1, num_heads=2, seq_len=8,
+        head_dim=4, num_layers=2, device="cpu", dtype=torch.float32,
+    )
+    kv_cache.k_cache[0, 0, :6, :, :] = torch.arange(6, dtype=torch.float32).view(6, 1, 1)
+    kv_cache.v_cache[0, 0, :6, :, :] = torch.arange(100, 106, dtype=torch.float32).view(6, 1, 1)
+    kv_cache.advance(6)
+
+    kv_cache.compact_for_append(4)
+
+    assert kv_cache.get_pos() == 6
+    assert kv_cache.get_cache_len() == 4
+    assert torch.equal(kv_cache.k_cache[0, 0, :4, 0, 0], torch.tensor([2.0, 3.0, 4.0, 5.0]))
+    assert torch.equal(kv_cache.v_cache[0, 0, :4, 0, 0], torch.tensor([102.0, 103.0, 104.0, 105.0]))
+
+
+def test_kv_cache_prefill_preserves_absolute_position_after_compaction():
+    """Cloned decode caches should inherit both retained KV and absolute RoPE position."""
+    src_cache = KVCache(
+        batch_size=1, num_heads=2, seq_len=4,
+        head_dim=4, num_layers=2, device="cpu", dtype=torch.float32,
+    )
+    src_cache.advance(4)
+    src_cache.compact_for_append(2)
+    src_cache.advance(2)
+
+    dst_cache = KVCache(
+        batch_size=1, num_heads=2, seq_len=4,
+        head_dim=4, num_layers=2, device="cpu", dtype=torch.float32,
+    )
+    dst_cache.prefill(src_cache)
+
+    assert src_cache.get_pos() == 6
+    assert src_cache.get_cache_len() == 4
+    assert dst_cache.get_pos() == 6
+    assert dst_cache.get_cache_len() == 4
+
+
+def test_generate_respects_fixed_cache_capacity():
+    """Generation should keep only a sliding window in cache while absolute positions keep growing."""
+    model = MockModel()
+    model.config.sequence_len = 8
+    engine = Engine(model, ByteTokenizer())
+    prompt = [261, 72, 101, 108, 108, 111, 33, 33]
+
+    results, _ = engine.generate_batch(prompt, max_tokens=6, temperature=0.0)
+
+    assert len(results) == 1
+    assert len(results[0]) == len(prompt) + 6
 
 
 def test_multi_sample_first_token_diversity():
