@@ -267,9 +267,9 @@ def sft_data_generator_bos_bestfit(split, buffer_size=100):
         if split == "train":
             current_epoch = epoch
             if args.num_iterations > 0:
-                approx_progress = it / args.num_iterations
+                approx_progress = min(it / args.num_iterations, 1.0)
             else:
-                approx_progress = consumed / dataset_size
+                approx_progress = min(consumed / dataset_size, 1.0)
             # Trigger last_step when we've consumed enough (instead of when cursor wraps)
             if consumed >= dataset_size:
                 last_step = True
@@ -296,7 +296,10 @@ progress = 0 # will go from 0 to 1 over the course of the epoch
 # Same shape as base_train but uses progress (0→1) instead of absolute step counts,
 # because SFT doesn't always know num_iterations in advance (dataset-driven stopping).
 def get_lr_multiplier(progress):
-    if progress < args.warmup_ratio:
+    # Dataloader-driven progress can slightly overshoot 1.0 on the last batch.
+    # Clamp it so the warmdown schedule never produces a negative LR multiplier.
+    progress = min(max(progress, 0.0), 1.0)
+    if args.warmup_ratio > 0 and progress < args.warmup_ratio:
         return (progress + 1e-8) / args.warmup_ratio
     elif progress <= 1.0 - args.warmdown_ratio:
         return 1.0
