@@ -624,3 +624,15 @@ Pilot 结果：
 | rejects | - | `17` | API 空返回、不完整 JSON 等 |
 
 结构校验已通过：`MathToolJSON` 能加载全部成功样本，且所有样本的 `python` 与 `python_output` 数量一致。
+
+### v1 本地数据
+
+继续本地扩展 DeepSeek trace 数据时，DeepSeek API 后半段返回 `402 Payment Required`，因此本轮保留已成功生成的样本，并整理出可用于下一轮 SFT 的本地 split：
+
+| 文件 | Rows |
+|---|---:|
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_train.jsonl` | `367` |
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_val.jsonl` | `50` |
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_summary.json` | - |
+
+结构校验通过，坏样本为 `0`。这批数据可以作为下一轮小规模 decomposition SFT 的主训练信号。

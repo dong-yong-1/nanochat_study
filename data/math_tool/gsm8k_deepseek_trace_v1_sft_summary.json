@@ -1,0 +1,259 @@
+{
+  "date": "2026-06-01",
+  "model": "deepseek-v4-pro",
+  "train_path": "data/math_tool/gsm8k_deepseek_trace_v1_sft_train.jsonl",
+  "val_path": "data/math_tool/gsm8k_deepseek_trace_v1_sft_val.jsonl",
+  "full_generated_path": "data/math_tool/gsm8k_deepseek_trace_v1_train.jsonl",
+  "reject_path": "data/math_tool/gsm8k_deepseek_trace_v1_rejects.jsonl",
+  "full_generated_rows": 417,
+  "train_rows": 367,
+  "val_rows": 50,
+  "reject_rows": 183,
+  "reject_reasons": {
+    "402_payment_required": 138,
+    "empty_or_non_json": 36,
+    "malformed_json": 6,
+    "truncated_json": 3
+  },
+  "tool_calls_train": {
+    "2": 125,
+    "3": 125,
+    "4": 73,
+    "5": 32,
+    "6": 12
+  },
+  "tool_calls_val": {
+    "2": 11,
+    "3": 17,
+    "4": 15,
+    "5": 4,
+    "6": 3
+  },
+  "examples": [
+    {
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tamtam collected 65 shells in total. She got 13 purple shells, 8 pink shells, 18 yellow shells, and 12 blue shells. The remaining shells are color orange. How many orange shells are there? Give the final answer after ####."
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Calculate total number of non-orange shells: purple + pink + yellow + blue. "
+            },
+            {
+              "type": "python",
+              "text": "13 + 8 + 18 + 12"
+            },
+            {
+              "type": "python_output",
+              "text": "51"
+            },
+            {
+              "type": "text",
+              "text": " This gives 51.\n"
+            },
+            {
+              "type": "text",
+              "text": "Subtract non-orange shells from total to get orange shells. "
+            },
+            {
+              "type": "python",
+              "text": "65 - 51"
+            },
+            {
+              "type": "python_output",
+              "text": "14"
+            },
+            {
+              "type": "text",
+              "text": " This gives 14.\n"
+            },
+            {
+              "type": "text",
+              "text": "The final answer is:\n\n#### 14"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "source": "gsm8k_deepseek_trace",
+        "source_index": 6165,
+        "answer": "14",
+        "num_tool_calls": 2,
+        "exprs": [
+          "13 + 8 + 18 + 12",
+          "65 - 51"
+        ],
+        "outputs": [
+          "51",
+          "14"
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "user",
+          "content": "There are 40 students in a class. If 1/10 are absent, 3/4 of the students who are present are in the classroom, and the rest are in the canteen, how many students are in the canteen? Give the final answer after ####."
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Number of absent students: total students multiplied by 1/10. "
+            },
+            {
+              "type": "python",
+              "text": "40 * 1 / 10"
+            },
+            {
+              "type": "python_output",
+              "text": "4"
+            },
+            {
+              "type": "text",
+              "text": " This gives 4.\n"
+            },
+            {
+              "type": "text",
+              "text": "Number of present students: total students minus absent students. "
+            },
+            {
+              "type": "python",
+              "text": "40 - 4"
+            },
+            {
+              "type": "python_output",
+              "text": "36"
+            },
+            {
+              "type": "text",
+              "text": " This gives 36.\n"
+            },
+            {
+              "type": "text",
+              "text": "Number of students in classroom: present students multiplied by 3/4. "
+            },
+            {
+              "type": "python",
+              "text": "36 * 3 / 4"
+            },
+            {
+              "type": "python_output",
+              "text": "27"
+            },
+            {
+              "type": "text",
+              "text": " This gives 27.\n"
+            },
+            {
+              "type": "text",
+              "text": "Number of students in canteen: present students minus students in classroom. "
+            },
+            {
+              "type": "python",
+              "text": "36 - 27"
+            },
+            {
+              "type": "python_output",
+              "text": "9"
+            },
+            {
+              "type": "text",
+              "text": " This gives 9.\n"
+            },
+            {
+              "type": "text",
+              "text": "The final answer is:\n\n#### 9"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "source": "gsm8k_deepseek_trace",
+        "source_index": 133,
+        "answer": "9",
+        "num_tool_calls": 4,
+        "exprs": [
+          "40 * 1 / 10",
+          "40 - 4",
+          "36 * 3 / 4",
+          "36 - 27"
+        ],
+        "outputs": [
+          "4",
+          "36",
+          "27",
+          "9"
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "role": "user",
+          "content": "Susan has 21 cats and Bob has 3 cats. If Susan gives Robert 4 of her cats, how many more cats does Susan have than Bob? Give the final answer after ####."
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Calculate Susan's remaining cats after giving 4 away. "
+            },
+            {
+              "type": "python",
+              "text": "21 - 4"
+            },
+            {
+              "type": "python_output",
+              "text": "17"
+            },
+            {
+              "type": "text",
+              "text": " This gives 17.\n"
+            },
+            {
+              "type": "text",
+              "text": "Calculate the difference between Susan's remaining cats and Bob's cats. "
+            },
+            {
+              "type": "python",
+              "text": "17 - 3"
+            },
+            {
+              "type": "python_output",
+              "text": "14"
+            },
+            {
+              "type": "text",
+              "text": " This gives 14.\n"
+            },
+            {
+              "type": "text",
+              "text": "The final answer is:\n\n#### 14"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "source": "gsm8k_deepseek_trace",
+        "source_index": 4037,
+        "answer": "14",
+        "num_tool_calls": 2,
+        "exprs": [
+          "21 - 4",
+          "17 - 3"
+        ],
+        "outputs": [
+          "17",
+          "14"
+        ]
+      }
+    }
+  ]
+}

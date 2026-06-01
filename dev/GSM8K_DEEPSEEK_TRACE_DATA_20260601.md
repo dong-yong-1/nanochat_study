@@ -156,3 +156,81 @@ Determine her savings, which is 10% of total earnings.
 - 如果 GSM8K@100 从 `4%` 继续上升，说明 decomposition trace 有效；
 - 如果 tool-use smoke 保持稳定且非数学不乱调工具，说明没有破坏通用行为；
 - 如果 20 题诊断里“拿错变量/关系方向”的错误减少，就可以把这条路线写进简历故事。
+
+## 2026-06-01 v1 本地生成进展
+
+用户确认“数据先在本地生成就可以”后，继续在本地扩展 DeepSeek trace 数据。
+
+本轮目标原本是生成 `500 train / 100 val`，但 DeepSeek API 后半段返回 `402 Payment Required`，说明当前 API key 余额或额度不足。因此本轮停止继续扩展，只保留已经成功通过校验的数据。
+
+命令形态：
+
+```bash
+.venv/bin/python -m scripts.generate_gsm8k_deepseek_traces \
+  --name-prefix gsm8k_deepseek_trace_v1 \
+  --train-size 500 \
+  --val-size 100 \
+  --limit=600 \
+  --workers=8 \
+  --arrow-path /Users/dongyong/.cache/huggingface/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866/gsm8k-train.arrow \
+  --resume
+```
+
+原始生成结果：
+
+| 文件 | 数量 | 说明 |
+|---|---:|---|
+| `data/math_tool/gsm8k_deepseek_trace_v1_train.jsonl` | `417` | 成功生成的 trace 样本 |
+| `data/math_tool/gsm8k_deepseek_trace_v1_rejects.jsonl` | `183` | 被拒样本 |
+
+由于 API 在进入 val 阶段前后余额不足，本轮没有成功生成独立 val 文件。为了能进行下一步 SFT 验证，已从 417 条成功样本中切出本地训练/验证版本：
+
+| 文件 | 数量 | 说明 |
+|---|---:|---|
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_train.jsonl` | `367` | SFT 训练样本 |
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_val.jsonl` | `50` | SFT 验证样本 |
+| `data/math_tool/gsm8k_deepseek_trace_v1_sft_summary.json` | - | 统计摘要 |
+
+结构校验：
+
+| Split | Rows | 2 calls | 3 calls | 4 calls | 5 calls | 6 calls | 坏样本 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| train | `367` | `125` | `125` | `73` | `32` | `12` | `0` |
+| val | `50` | `11` | `17` | `15` | `4` | `3` | `0` |
+
+reject 原因统计：
+
+| 原因 | 数量 |
+|---|---:|
+| API 余额/额度不足 `402 Payment Required` | `138` |
+| 空返回或非 JSON | `36` |
+| JSON 格式缺逗号等错误 | `6` |
+| JSON 字符串截断 | `3` |
+
+当前判断：
+
+- `367/50` 已经够做一轮小规模 SFT 验证，但还不够作为最终强结论；
+- 这批数据比 pilot 更适合验证“高质量 decomposition trace 是否改善题意解析”；
+- 如果想继续扩到 `500/100` 或 `1k/100`，需要先给 DeepSeek API 充值或换可用 key；
+- 在服务器恢复前，本地已完成下一步训练所需的数据准备。
+
+建议下一步训练起点：
+
+```text
+d12_gsm8k_hard_tool_sft/model_000293.pt
+```
+
+建议数据混合：
+
+| 数据 | 文件 | 用途 |
+|---|---|---|
+| DeepSeek decomposition trace | `gsm8k_deepseek_trace_v1_sft_train.jsonl` | 主训练信号 |
+| hard bridge | `gsm8k_hard_bridge_train.jsonl` | 保持模板覆盖和稳定工具调用 |
+| calculator warmup | `calculator_warmup_train.jsonl` | 保持基础工具格式 |
+| SmolTalk/identity | 通过 `chat_sft.py` 参数采样 | 防止非数学过拟合 |
+
+第一轮建议不要训练太久，目标是看趋势：
+
+- tool-use smoke 不能掉；
+- GSM8K@100 是否高于 `4%`；
+- 20 题诊断中“变量拿错/关系方向错”是否减少。
