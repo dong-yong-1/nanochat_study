@@ -1,0 +1,807 @@
+{
+  "seed": 123,
+  "train_path": "data/math_tool/gsm8k_bridge_train.jsonl",
+  "val_path": "data/math_tool/gsm8k_bridge_val.jsonl",
+  "train": {
+    "num_rows": 10000,
+    "kinds": {
+      "boxes_sell_buy": 1636,
+      "buy_then_share": 1662,
+      "classroom_groups": 1701,
+      "pages_remaining": 1596,
+      "seashell_fraction": 1679,
+      "work_earn_spend": 1726
+    },
+    "tool_calls": {
+      "3": 10000
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Ava buys 3 packs of marbles with 12 marbles in each pack. She also gets 28 extra marbles. She shares all the marbles equally among 4 friends. How many marbles does each friend get? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the number from packs: "
+              },
+              {
+                "type": "python",
+                "text": "3*12"
+              },
+              {
+                "type": "python_output",
+                "text": "36"
+              },
+              {
+                "type": "text",
+                "text": " The packs contain 36 marbles.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the extra amount: "
+              },
+              {
+                "type": "python",
+                "text": "36+28"
+              },
+              {
+                "type": "python_output",
+                "text": "64"
+              },
+              {
+                "type": "text",
+                "text": " There are 64 marbles total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Divide equally among the friends: "
+              },
+              {
+                "type": "python",
+                "text": "64/4"
+              },
+              {
+                "type": "python_output",
+                "text": "16"
+              },
+              {
+                "type": "text",
+                "text": " Each friend gets 16 marbles."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 16"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "buy_then_share",
+          "split": "train",
+          "answer": "16",
+          "num_tool_calls": 3,
+          "exprs": [
+            "3*12",
+            "36+28",
+            "64/4"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Ava buys 8 packs of stickers with 6 stickers in each pack. She also gets 24 extra stickers. She shares all the stickers equally among 4 friends. How many stickers does each friend get? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the number from packs: "
+              },
+              {
+                "type": "python",
+                "text": "8*6"
+              },
+              {
+                "type": "python_output",
+                "text": "48"
+              },
+              {
+                "type": "text",
+                "text": " The packs contain 48 stickers.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the extra amount: "
+              },
+              {
+                "type": "python",
+                "text": "48+24"
+              },
+              {
+                "type": "python_output",
+                "text": "72"
+              },
+              {
+                "type": "text",
+                "text": " There are 72 stickers total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Divide equally among the friends: "
+              },
+              {
+                "type": "python",
+                "text": "72/4"
+              },
+              {
+                "type": "python_output",
+                "text": "18"
+              },
+              {
+                "type": "text",
+                "text": " Each friend gets 18 stickers."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 18"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "buy_then_share",
+          "split": "train",
+          "answer": "18",
+          "num_tool_calls": 3,
+          "exprs": [
+            "8*6",
+            "48+24",
+            "72/4"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A book has 264 pages. Sofia already read 60 pages. She reads 17 pages per day for 4 days. How many pages are left? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute how many pages she reads over those days: "
+              },
+              {
+                "type": "python",
+                "text": "17*4"
+              },
+              {
+                "type": "python_output",
+                "text": "68"
+              },
+              {
+                "type": "text",
+                "text": " She reads 68 more pages.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the pages already read: "
+              },
+              {
+                "type": "python",
+                "text": "60+68"
+              },
+              {
+                "type": "python_output",
+                "text": "128"
+              },
+              {
+                "type": "text",
+                "text": " She has read 128 pages total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract from the full book: "
+              },
+              {
+                "type": "python",
+                "text": "264-128"
+              },
+              {
+                "type": "python_output",
+                "text": "136"
+              },
+              {
+                "type": "text",
+                "text": " There are 136 pages left."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 136"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "pages_remaining",
+          "split": "train",
+          "answer": "136",
+          "num_tool_calls": 3,
+          "exprs": [
+            "17*4",
+            "60+68",
+            "264-128"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A store has 6 boxes of pencils with 17 pencils in each box. It sells 86 pencils and later buys 18 more pencils. How many pencils does the store have now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the starting amount: "
+              },
+              {
+                "type": "python",
+                "text": "6*17"
+              },
+              {
+                "type": "python_output",
+                "text": "102"
+              },
+              {
+                "type": "text",
+                "text": " The store starts with 102 pencils.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the sold amount: "
+              },
+              {
+                "type": "python",
+                "text": "102-86"
+              },
+              {
+                "type": "python_output",
+                "text": "16"
+              },
+              {
+                "type": "text",
+                "text": " After selling, it has 16 pencils.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the newly bought amount: "
+              },
+              {
+                "type": "python",
+                "text": "16+18"
+              },
+              {
+                "type": "python_output",
+                "text": "34"
+              },
+              {
+                "type": "text",
+                "text": " The store now has 34 pencils."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 34"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "boxes_sell_buy",
+          "split": "train",
+          "answer": "34",
+          "num_tool_calls": 3,
+          "exprs": [
+            "6*17",
+            "102-86",
+            "16+18"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Noah earns $15 per hour. He works 5 hours on Monday and 6 hours on Tuesday. Then he spends $91. How much money does he have left? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute Monday's earnings: "
+              },
+              {
+                "type": "python",
+                "text": "15*5"
+              },
+              {
+                "type": "python_output",
+                "text": "75"
+              },
+              {
+                "type": "text",
+                "text": " Monday earnings are 75.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute Tuesday's earnings: "
+              },
+              {
+                "type": "python",
+                "text": "15*6"
+              },
+              {
+                "type": "python_output",
+                "text": "90"
+              },
+              {
+                "type": "text",
+                "text": " Tuesday earnings are 90.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add both days and subtract the spending: "
+              },
+              {
+                "type": "python",
+                "text": "75+90-91"
+              },
+              {
+                "type": "python_output",
+                "text": "74"
+              },
+              {
+                "type": "text",
+                "text": " Noah has 74 left."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 74"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "work_earn_spend",
+          "split": "train",
+          "answer": "74",
+          "num_tool_calls": 3,
+          "exprs": [
+            "15*5",
+            "15*6",
+            "75+90-91"
+          ]
+        }
+      }
+    ]
+  },
+  "val": {
+    "num_rows": 500,
+    "kinds": {
+      "boxes_sell_buy": 87,
+      "buy_then_share": 78,
+      "classroom_groups": 93,
+      "pages_remaining": 75,
+      "seashell_fraction": 90,
+      "work_earn_spend": 77
+    },
+    "tool_calls": {
+      "3": 500
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Ava buys 9 packs of candies with 18 candies in each pack. She also gets 12 extra candies. She shares all the candies equally among 2 friends. How many candies does each friend get? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the number from packs: "
+              },
+              {
+                "type": "python",
+                "text": "9*18"
+              },
+              {
+                "type": "python_output",
+                "text": "162"
+              },
+              {
+                "type": "text",
+                "text": " The packs contain 162 candies.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the extra amount: "
+              },
+              {
+                "type": "python",
+                "text": "162+12"
+              },
+              {
+                "type": "python_output",
+                "text": "174"
+              },
+              {
+                "type": "text",
+                "text": " There are 174 candies total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Divide equally among the friends: "
+              },
+              {
+                "type": "python",
+                "text": "174/2"
+              },
+              {
+                "type": "python_output",
+                "text": "87"
+              },
+              {
+                "type": "text",
+                "text": " Each friend gets 87 candies."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 87"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "buy_then_share",
+          "split": "val",
+          "answer": "87",
+          "num_tool_calls": 3,
+          "exprs": [
+            "9*18",
+            "162+12",
+            "174/2"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "There are 3 classes with 35 students in each class. 6 students are absent. The remaining students are split evenly across 3 buses. How many students ride each bus? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the total number of students: "
+              },
+              {
+                "type": "python",
+                "text": "3*35"
+              },
+              {
+                "type": "python_output",
+                "text": "105"
+              },
+              {
+                "type": "text",
+                "text": " There are 105 students total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract absent students: "
+              },
+              {
+                "type": "python",
+                "text": "105-6"
+              },
+              {
+                "type": "python_output",
+                "text": "99"
+              },
+              {
+                "type": "text",
+                "text": " There are 99 students going.\n"
+              },
+              {
+                "type": "text",
+                "text": "Divide them evenly across buses: "
+              },
+              {
+                "type": "python",
+                "text": "99/3"
+              },
+              {
+                "type": "python_output",
+                "text": "33"
+              },
+              {
+                "type": "text",
+                "text": " Each bus has 33 students."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 33"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "classroom_groups",
+          "split": "val",
+          "answer": "33",
+          "num_tool_calls": 3,
+          "exprs": [
+            "3*35",
+            "105-6",
+            "99/3"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Noah earns $25 per hour. He works 5 hours on Monday and 5 hours on Tuesday. Then he spends $47. How much money does he have left? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute Monday's earnings: "
+              },
+              {
+                "type": "python",
+                "text": "25*5"
+              },
+              {
+                "type": "python_output",
+                "text": "125"
+              },
+              {
+                "type": "text",
+                "text": " Monday earnings are 125.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute Tuesday's earnings: "
+              },
+              {
+                "type": "python",
+                "text": "25*5"
+              },
+              {
+                "type": "python_output",
+                "text": "125"
+              },
+              {
+                "type": "text",
+                "text": " Tuesday earnings are 125.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add both days and subtract the spending: "
+              },
+              {
+                "type": "python",
+                "text": "125+125-47"
+              },
+              {
+                "type": "python_output",
+                "text": "203"
+              },
+              {
+                "type": "text",
+                "text": " Noah has 203 left."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 203"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "work_earn_spend",
+          "split": "val",
+          "answer": "203",
+          "num_tool_calls": 3,
+          "exprs": [
+            "25*5",
+            "25*5",
+            "125+125-47"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "There are 3 classes with 33 students in each class. 7 students are absent. The remaining students are split evenly across 4 buses. How many students ride each bus? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the total number of students: "
+              },
+              {
+                "type": "python",
+                "text": "3*33"
+              },
+              {
+                "type": "python_output",
+                "text": "99"
+              },
+              {
+                "type": "text",
+                "text": " There are 99 students total.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract absent students: "
+              },
+              {
+                "type": "python",
+                "text": "99-7"
+              },
+              {
+                "type": "python_output",
+                "text": "92"
+              },
+              {
+                "type": "text",
+                "text": " There are 92 students going.\n"
+              },
+              {
+                "type": "text",
+                "text": "Divide them evenly across buses: "
+              },
+              {
+                "type": "python",
+                "text": "92/4"
+              },
+              {
+                "type": "python_output",
+                "text": "23"
+              },
+              {
+                "type": "text",
+                "text": " Each bus has 23 students."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 23"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "classroom_groups",
+          "split": "val",
+          "answer": "23",
+          "num_tool_calls": 3,
+          "exprs": [
+            "3*33",
+            "99-7",
+            "92/4"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A store has 9 boxes of oranges with 28 oranges in each box. It sells 112 oranges and later buys 43 more oranges. How many oranges does the store have now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the starting amount: "
+              },
+              {
+                "type": "python",
+                "text": "9*28"
+              },
+              {
+                "type": "python_output",
+                "text": "252"
+              },
+              {
+                "type": "text",
+                "text": " The store starts with 252 oranges.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the sold amount: "
+              },
+              {
+                "type": "python",
+                "text": "252-112"
+              },
+              {
+                "type": "python_output",
+                "text": "140"
+              },
+              {
+                "type": "text",
+                "text": " After selling, it has 140 oranges.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the newly bought amount: "
+              },
+              {
+                "type": "python",
+                "text": "140+43"
+              },
+              {
+                "type": "python_output",
+                "text": "183"
+              },
+              {
+                "type": "text",
+                "text": " The store now has 183 oranges."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 183"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_bridge",
+          "kind": "boxes_sell_buy",
+          "split": "val",
+          "answer": "183",
+          "num_tool_calls": 3,
+          "exprs": [
+            "9*28",
+            "252-112",
+            "140+43"
+          ]
+        }
+      }
+    ]
+  }
+}

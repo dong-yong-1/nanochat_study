@@ -1,0 +1,405 @@
+{
+  "seed": 42,
+  "train_path": "data/math_tool/calculator_warmup_train.jsonl",
+  "val_path": "data/math_tool/calculator_warmup_val.jsonl",
+  "train": {
+    "num_rows": 30000,
+    "sources": {
+      "synthetic_direct": 10000,
+      "synthetic_word": 20000
+    },
+    "kinds": {
+      "binary": 3345,
+      "distance": 3334,
+      "groups": 3333,
+      "mixed": 3288,
+      "pages": 3350,
+      "parentheses": 3367,
+      "purchase": 3368,
+      "remaining": 3301,
+      "tickets": 3314
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A family buys 5 adult tickets at $27 each and 5 child tickets at $4 each. What is the total cost? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Calculate adult ticket cost plus child ticket cost: "
+              },
+              {
+                "type": "python",
+                "text": "5*27+5*4"
+              },
+              {
+                "type": "python_output",
+                "text": "155"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 155"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "tickets",
+          "split": "train",
+          "expr": "5*27+5*4",
+          "answer": "155"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "There are 7 groups with 23 students in each group, plus 30 extra students. How many students are there? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the grouped students and add the extra students: "
+              },
+              {
+                "type": "python",
+                "text": "7*23+30"
+              },
+              {
+                "type": "python_output",
+                "text": "191"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 191"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "groups",
+          "split": "train",
+          "expr": "7*23+30",
+          "answer": "191"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A student has already read 29 pages. She reads 29 pages per day for 4 days. How many pages has she read in total? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Add the pages already read to the new pages read: "
+              },
+              {
+                "type": "python",
+                "text": "29+4*29"
+              },
+              {
+                "type": "python_output",
+                "text": "145"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 145"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "pages",
+          "split": "train",
+          "expr": "29+4*29",
+          "answer": "145"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A driver travels 68 miles per hour for 3 hours, then drives 40 more miles. How many miles does the driver travel? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the distance from speed and time, then add the extra distance: "
+              },
+              {
+                "type": "python",
+                "text": "68*3+40"
+              },
+              {
+                "type": "python_output",
+                "text": "244"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 244"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "distance",
+          "split": "train",
+          "expr": "68*3+40",
+          "answer": "244"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Calculate 962-225. Put the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "I should calculate this exactly: "
+              },
+              {
+                "type": "python",
+                "text": "962-225"
+              },
+              {
+                "type": "python_output",
+                "text": "737"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 737"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_direct",
+          "kind": "binary",
+          "split": "train",
+          "expr": "962-225",
+          "answer": "737"
+        }
+      }
+    ]
+  },
+  "val": {
+    "num_rows": 1000,
+    "sources": {
+      "synthetic_direct": 500,
+      "synthetic_word": 500
+    },
+    "kinds": {
+      "binary": 155,
+      "distance": 84,
+      "groups": 77,
+      "mixed": 175,
+      "pages": 81,
+      "parentheses": 170,
+      "purchase": 98,
+      "remaining": 71,
+      "tickets": 89
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A driver travels 50 miles per hour for 9 hours, then drives 17 more miles. How many miles does the driver travel? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the distance from speed and time, then add the extra distance: "
+              },
+              {
+                "type": "python",
+                "text": "50*9+17"
+              },
+              {
+                "type": "python_output",
+                "text": "467"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 467"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "distance",
+          "split": "val",
+          "expr": "50*9+17",
+          "answer": "467"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "There are 7 groups with 14 students in each group, plus 17 extra students. How many students are there? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the grouped students and add the extra students: "
+              },
+              {
+                "type": "python",
+                "text": "7*14+17"
+              },
+              {
+                "type": "python_output",
+                "text": "115"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 115"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "groups",
+          "split": "val",
+          "expr": "7*14+17",
+          "answer": "115"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Lena buys 11 tickets for $19 each and 2 stickers for $7 each. How much does she spend? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "The total cost is the first cost plus the second cost: "
+              },
+              {
+                "type": "python",
+                "text": "11*19+2*7"
+              },
+              {
+                "type": "python_output",
+                "text": "223"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 223"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "purchase",
+          "split": "val",
+          "expr": "11*19+2*7",
+          "answer": "223"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "There are 8 boxes with 7 marbles in each box. If 46 marbles are used, how many marbles remain? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the total and subtract the used amount: "
+              },
+              {
+                "type": "python",
+                "text": "8*7-46"
+              },
+              {
+                "type": "python_output",
+                "text": "10"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 10"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_word",
+          "kind": "remaining",
+          "split": "val",
+          "expr": "8*7-46",
+          "answer": "10"
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Please compute 10*28+168 exactly."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "I should calculate this exactly: "
+              },
+              {
+                "type": "python",
+                "text": "10*28+168"
+              },
+              {
+                "type": "python_output",
+                "text": "448"
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 448"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "synthetic_direct",
+          "kind": "mixed",
+          "split": "val",
+          "expr": "10*28+168",
+          "answer": "448"
+        }
+      }
+    ]
+  }
+}

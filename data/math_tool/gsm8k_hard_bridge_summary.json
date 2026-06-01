@@ -1,0 +1,805 @@
+{
+  "seed": 456,
+  "train": {
+    "num_rows": 30000,
+    "kinds": {
+      "cost_two_items": 4977,
+      "fraction_total": 4926,
+      "multi_entity": 5104,
+      "percent_remaining": 4998,
+      "ratio_age": 5028,
+      "sleep_interval": 4967
+    },
+    "tool_calls": {
+      "3": 30000
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Sally has 107 cards. A gust of wind causes 50% of them to be lost. Later she finds 7 more cards. How many cards does she have now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute how many were lost: "
+              },
+              {
+                "type": "python",
+                "text": "107*50/100"
+              },
+              {
+                "type": "python_output",
+                "text": "53"
+              },
+              {
+                "type": "text",
+                "text": " She lost 53.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the lost amount: "
+              },
+              {
+                "type": "python",
+                "text": "107-53"
+              },
+              {
+                "type": "python_output",
+                "text": "54"
+              },
+              {
+                "type": "text",
+                "text": " She has 54 left.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the newly found amount: "
+              },
+              {
+                "type": "python",
+                "text": "54+7"
+              },
+              {
+                "type": "python_output",
+                "text": "61"
+              },
+              {
+                "type": "text",
+                "text": " She now has 61."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 61"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "percent_remaining",
+          "split": "train",
+          "answer": "61",
+          "num_tool_calls": 3,
+          "exprs": [
+            "107*50/100",
+            "107-53",
+            "54+7"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Mia and Noah's ages are in the ratio 4:7. If their total age now is 77, calculate Noah's age 6 years from now. Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the total number of ratio parts: "
+              },
+              {
+                "type": "python",
+                "text": "4+7"
+              },
+              {
+                "type": "python_output",
+                "text": "11"
+              },
+              {
+                "type": "text",
+                "text": " There are 11 parts.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute the value of one part: "
+              },
+              {
+                "type": "python",
+                "text": "77/11"
+              },
+              {
+                "type": "python_output",
+                "text": "7"
+              },
+              {
+                "type": "text",
+                "text": " One part is 7 years.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute Noah's current age and add 6 years: "
+              },
+              {
+                "type": "python",
+                "text": "7*7+6"
+              },
+              {
+                "type": "python_output",
+                "text": "55"
+              },
+              {
+                "type": "text",
+                "text": " Noah will be 55."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 55"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "ratio_age",
+          "split": "train",
+          "answer": "55",
+          "num_tool_calls": 3,
+          "exprs": [
+            "4+7",
+            "77/11",
+            "7*7+6"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Sally has 111 balloons. A gust of wind causes 10% of them to be lost. Later she finds 1 more balloons. How many balloons does she have now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute how many were lost: "
+              },
+              {
+                "type": "python",
+                "text": "111*10/100"
+              },
+              {
+                "type": "python_output",
+                "text": "11"
+              },
+              {
+                "type": "text",
+                "text": " She lost 11.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the lost amount: "
+              },
+              {
+                "type": "python",
+                "text": "111-11"
+              },
+              {
+                "type": "python_output",
+                "text": "100"
+              },
+              {
+                "type": "text",
+                "text": " She has 100 left.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the newly found amount: "
+              },
+              {
+                "type": "python",
+                "text": "100+1"
+              },
+              {
+                "type": "python_output",
+                "text": "101"
+              },
+              {
+                "type": "text",
+                "text": " She now has 101."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 101"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "percent_remaining",
+          "split": "train",
+          "answer": "101",
+          "num_tool_calls": 3,
+          "exprs": [
+            "111*10/100",
+            "111-11",
+            "100+1"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "An eraser costs $9 and a pencil costs $2. How much do 3 erasers and 2 pencils cost? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the eraser cost: "
+              },
+              {
+                "type": "python",
+                "text": "3*9"
+              },
+              {
+                "type": "python_output",
+                "text": "27"
+              },
+              {
+                "type": "text",
+                "text": " Erasers cost 27.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute the pencil cost: "
+              },
+              {
+                "type": "python",
+                "text": "2*2"
+              },
+              {
+                "type": "python_output",
+                "text": "4"
+              },
+              {
+                "type": "text",
+                "text": " Pencils cost 4.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add both costs: "
+              },
+              {
+                "type": "python",
+                "text": "27+4"
+              },
+              {
+                "type": "python_output",
+                "text": "31"
+              },
+              {
+                "type": "text",
+                "text": " Total cost is 31."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 31"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "cost_two_items",
+          "split": "train",
+          "answer": "31",
+          "num_tool_calls": 3,
+          "exprs": [
+            "3*9",
+            "2*2",
+            "27+4"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Sally has 65 stickers. A gust of wind causes 60% of them to be lost. Later she finds 7 more stickers. How many stickers does she have now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute how many were lost: "
+              },
+              {
+                "type": "python",
+                "text": "65*60/100"
+              },
+              {
+                "type": "python_output",
+                "text": "39"
+              },
+              {
+                "type": "text",
+                "text": " She lost 39.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the lost amount: "
+              },
+              {
+                "type": "python",
+                "text": "65-39"
+              },
+              {
+                "type": "python_output",
+                "text": "26"
+              },
+              {
+                "type": "text",
+                "text": " She has 26 left.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the newly found amount: "
+              },
+              {
+                "type": "python",
+                "text": "26+7"
+              },
+              {
+                "type": "python_output",
+                "text": "33"
+              },
+              {
+                "type": "text",
+                "text": " She now has 33."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 33"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "percent_remaining",
+          "split": "train",
+          "answer": "33",
+          "num_tool_calls": 3,
+          "exprs": [
+            "65*60/100",
+            "65-39",
+            "26+7"
+          ]
+        }
+      }
+    ]
+  },
+  "val": {
+    "num_rows": 1000,
+    "kinds": {
+      "cost_two_items": 164,
+      "fraction_total": 163,
+      "multi_entity": 166,
+      "percent_remaining": 173,
+      "ratio_age": 164,
+      "sleep_interval": 170
+    },
+    "tool_calls": {
+      "3": 1000
+    },
+    "examples": [
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Lily and Amy's ages are in the ratio 4:11. If their total age now is 75, calculate Amy's age 12 years from now. Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the total number of ratio parts: "
+              },
+              {
+                "type": "python",
+                "text": "4+11"
+              },
+              {
+                "type": "python_output",
+                "text": "15"
+              },
+              {
+                "type": "text",
+                "text": " There are 15 parts.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute the value of one part: "
+              },
+              {
+                "type": "python",
+                "text": "75/15"
+              },
+              {
+                "type": "python_output",
+                "text": "5"
+              },
+              {
+                "type": "text",
+                "text": " One part is 5 years.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute Amy's current age and add 12 years: "
+              },
+              {
+                "type": "python",
+                "text": "11*5+12"
+              },
+              {
+                "type": "python_output",
+                "text": "67"
+              },
+              {
+                "type": "text",
+                "text": " Amy will be 67."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 67"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "ratio_age",
+          "split": "val",
+          "answer": "67",
+          "num_tool_calls": 3,
+          "exprs": [
+            "4+11",
+            "75/15",
+            "11*5+12"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Lily and Amy's ages are in the ratio 9:12. If their total age now is 84, calculate Amy's age 12 years from now. Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "First compute the total number of ratio parts: "
+              },
+              {
+                "type": "python",
+                "text": "9+12"
+              },
+              {
+                "type": "python_output",
+                "text": "21"
+              },
+              {
+                "type": "text",
+                "text": " There are 21 parts.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute the value of one part: "
+              },
+              {
+                "type": "python",
+                "text": "84/21"
+              },
+              {
+                "type": "python_output",
+                "text": "4"
+              },
+              {
+                "type": "text",
+                "text": " One part is 4 years.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute Amy's current age and add 12 years: "
+              },
+              {
+                "type": "python",
+                "text": "12*4+12"
+              },
+              {
+                "type": "python_output",
+                "text": "60"
+              },
+              {
+                "type": "text",
+                "text": " Amy will be 60."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 60"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "ratio_age",
+          "split": "val",
+          "answer": "60",
+          "num_tool_calls": 3,
+          "exprs": [
+            "9+12",
+            "84/21",
+            "12*4+12"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Kim usually sleeps from 10 p.m. to 6 a.m. One night she sleepwalks for 29 minutes and also wakes up for 11 minutes to go to the bathroom. How many minutes did she sleep in bed? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the full sleep window in minutes: "
+              },
+              {
+                "type": "python",
+                "text": "8*60"
+              },
+              {
+                "type": "python_output",
+                "text": "480"
+              },
+              {
+                "type": "text",
+                "text": " The full window is 480 minutes.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract sleepwalking minutes: "
+              },
+              {
+                "type": "python",
+                "text": "480-29"
+              },
+              {
+                "type": "python_output",
+                "text": "451"
+              },
+              {
+                "type": "text",
+                "text": " 451 minutes remain.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract bathroom minutes: "
+              },
+              {
+                "type": "python",
+                "text": "451-11"
+              },
+              {
+                "type": "python_output",
+                "text": "440"
+              },
+              {
+                "type": "text",
+                "text": " She slept 440 minutes in bed."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 440"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "sleep_interval",
+          "split": "val",
+          "answer": "440",
+          "num_tool_calls": 3,
+          "exprs": [
+            "8*60",
+            "480-29",
+            "451-11"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "An eraser costs $2 and a pencil costs $7. How much do 10 erasers and 3 pencils cost? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the eraser cost: "
+              },
+              {
+                "type": "python",
+                "text": "10*2"
+              },
+              {
+                "type": "python_output",
+                "text": "20"
+              },
+              {
+                "type": "text",
+                "text": " Erasers cost 20.\n"
+              },
+              {
+                "type": "text",
+                "text": "Compute the pencil cost: "
+              },
+              {
+                "type": "python",
+                "text": "3*7"
+              },
+              {
+                "type": "python_output",
+                "text": "21"
+              },
+              {
+                "type": "text",
+                "text": " Pencils cost 21.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add both costs: "
+              },
+              {
+                "type": "python",
+                "text": "20+21"
+              },
+              {
+                "type": "python_output",
+                "text": "41"
+              },
+              {
+                "type": "text",
+                "text": " Total cost is 41."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 41"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "cost_two_items",
+          "split": "val",
+          "answer": "41",
+          "num_tool_calls": 3,
+          "exprs": [
+            "10*2",
+            "3*7",
+            "20+21"
+          ]
+        }
+      },
+      {
+        "messages": [
+          {
+            "role": "user",
+            "content": "A box has 54 cups. 4/5 of the cups are used, then 1 more cups are added. How many cups are there now? Give the final answer after ####."
+          },
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Compute the used amount: "
+              },
+              {
+                "type": "python",
+                "text": "54*4/5"
+              },
+              {
+                "type": "python_output",
+                "text": "43"
+              },
+              {
+                "type": "text",
+                "text": " 43 are used.\n"
+              },
+              {
+                "type": "text",
+                "text": "Subtract the used amount: "
+              },
+              {
+                "type": "python",
+                "text": "54-43"
+              },
+              {
+                "type": "python_output",
+                "text": "11"
+              },
+              {
+                "type": "text",
+                "text": " 11 remain.\n"
+              },
+              {
+                "type": "text",
+                "text": "Add the new amount: "
+              },
+              {
+                "type": "python",
+                "text": "11+1"
+              },
+              {
+                "type": "python_output",
+                "text": "12"
+              },
+              {
+                "type": "text",
+                "text": " There are 12 now."
+              },
+              {
+                "type": "text",
+                "text": "\nThe final answer is:\n\n#### 12"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "source": "gsm8k_hard_bridge",
+          "kind": "fraction_total",
+          "split": "val",
+          "answer": "12",
+          "num_tool_calls": 3,
+          "exprs": [
+            "54*4/5",
+            "54-43",
+            "11+1"
+          ]
+        }
+      }
+    ]
+  }
+}
