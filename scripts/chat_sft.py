@@ -31,6 +31,7 @@ from tasks.gsm8k import GSM8K
 from tasks.mmlu import MMLU
 from tasks.smoltalk import SmolTalk
 from tasks.customjson import CustomJSON
+from tasks.math_tool import MathToolJSON
 from tasks.spellingbee import SimpleSpelling, SpellingBee
 
 # -----------------------------------------------------------------------------
@@ -41,8 +42,10 @@ parser.add_argument("--run", type=str, default="dummy", help="wandb run name ('d
 # Runtime
 parser.add_argument("--device-type", type=str, default="", help="cuda|cpu|mps (empty = autodetect)")
 # Model loading
+parser.add_argument("--source", type=str, default="base", choices=["base", "sft"], help="checkpoint source to load from")
 parser.add_argument("--model-tag", type=str, default=None, help="model tag to load from")
 parser.add_argument("--model-step", type=int, default=None, help="model step to load from")
+parser.add_argument("--output-tag", type=str, default=None, help="model tag to save to (default: same as --model-tag)")
 parser.add_argument("--load-optimizer", type=int, default=1, help="warm-start optimizer from pretrained checkpoint (0=no, 1=yes)")
 # Training horizon
 parser.add_argument("--num-iterations", type=int, default=-1, help="number of optimization steps (-1 = full epoch)")
@@ -67,6 +70,14 @@ parser.add_argument("--chatcore-max-sample", type=int, default=24, help="max pro
 # Data mixture
 parser.add_argument("--mmlu-epochs", type=int, default=3, help="number of epochs of MMLU in training mixture (teaches Multiple Choice)")
 parser.add_argument("--gsm8k-epochs", type=int, default=4, help="number of epochs of GSM8K in training mixture (teaches Math and Tool Use)")
+parser.add_argument("--math-tool-train", type=str, default=None, help="optional MathToolJSON train JSONL for calculator warmup")
+parser.add_argument("--math-tool-val", type=str, default=None, help="optional MathToolJSON val JSONL for calculator warmup")
+parser.add_argument("--math-tool-epochs", type=int, default=1, help="number of epochs for math tool train data")
+parser.add_argument("--include-gsm8k", type=int, default=0, help="include GSM8K in math-tool mode (0=no, 1=yes)")
+parser.add_argument("--smoltalk-rows", type=int, default=None, help="optional SmolTalk train rows when using math-tool data")
+parser.add_argument("--identity-epochs", type=int, default=2, help="identity conversation epochs")
+parser.add_argument("--simple-spelling-size", type=int, default=200000, help="SimpleSpelling train size")
+parser.add_argument("--spellingbee-size", type=int, default=80000, help="SpellingBee train size")
 args = parser.parse_args()
 user_config = vars(args).copy()
 # -----------------------------------------------------------------------------
@@ -94,7 +105,7 @@ if not HAS_FA3:
     print0("WARNING: Flash Attention 3 not available, using PyTorch SDPA fallback. Training will be less efficient.")
 
 # Load the model and tokenizer
-model, tokenizer, meta = load_model("base", device, phase="train", model_tag=args.model_tag, step=args.model_step)
+model, tokenizer, meta = load_model(args.source, device, phase="train", model_tag=args.model_tag, step=args.model_step)
 
 # Inherit training hyperparameters from pretrained checkpoint (None = inherit, explicit value = override)
 pretrain_user_config = meta.get("user_config", {})
@@ -140,7 +151,7 @@ optimizer = model.setup_optimizer(unembedding_lr=args.unembedding_lr, embedding_
 # restore our fresh SFT LRs after loading.
 base_dir = get_base_dir()
 if args.load_optimizer:
-    optimizer_data = load_optimizer_state("base", device, rank=ddp_rank, model_tag=args.model_tag, step=args.model_step)
+    optimizer_data = load_optimizer_state(args.source, device, rank=ddp_rank, model_tag=args.model_tag, step=args.model_step)
     if optimizer_data is not None:
         base_lrs = [group["lr"] for group in optimizer.param_groups]
         optimizer.load_state_dict(optimizer_data)
@@ -158,22 +169,45 @@ for group in optimizer.param_groups:
 
 # SFT data mixture and DataLoader
 identity_conversations_filepath = os.path.join(base_dir, "identity_conversations.jsonl")
-train_tasks = [
-    SmolTalk(split="train"), # 460K rows of general conversations
-    CustomJSON(filepath=identity_conversations_filepath), # 1000 rows of synthetic identity conversations
-    CustomJSON(filepath=identity_conversations_filepath), # 2 epochs of these
-    *[MMLU(subset="auxiliary_train", split="train") for _ in range(args.mmlu_epochs)], # 100K rows per epoch
-    *[GSM8K(subset="main", split="train") for _ in range(args.gsm8k_epochs)], # 8K rows per epoch
-    SimpleSpelling(size=200000, split="train"), # 200K rows of Simple Spelling (e.g. spell the word 'apple')
-    SpellingBee(size=80000, split="train"), # 80K rows of Spelling Bee (e.g. how many 'r' are in 'strawberry'?)
-]
+if args.math_tool_train is not None:
+    assert args.math_tool_val is not None, "--math-tool-val is required when --math-tool-train is set"
+    math_tool_train_paths = [p.strip() for p in args.math_tool_train.split(",") if p.strip()]
+    math_tool_val_paths = [p.strip() for p in args.math_tool_val.split(",") if p.strip()]
+    train_tasks = [
+        MathToolJSON(filepath=path)
+        for path in math_tool_train_paths
+        for _ in range(args.math_tool_epochs)
+    ]
+    if args.include_gsm8k:
+        train_tasks.extend(GSM8K(subset="main", split="train") for _ in range(args.gsm8k_epochs))
+    if args.smoltalk_rows is not None and args.smoltalk_rows > 0:
+        train_tasks.append(SmolTalk(split="train", stop=args.smoltalk_rows))
+    train_tasks.extend(CustomJSON(filepath=identity_conversations_filepath) for _ in range(args.identity_epochs))
+    if args.simple_spelling_size > 0:
+        train_tasks.append(SimpleSpelling(size=args.simple_spelling_size, split="train"))
+    if args.spellingbee_size > 0:
+        train_tasks.append(SpellingBee(size=args.spellingbee_size, split="train"))
+else:
+    train_tasks = [
+        SmolTalk(split="train"), # 460K rows of general conversations
+        *[CustomJSON(filepath=identity_conversations_filepath) for _ in range(args.identity_epochs)],
+        *[MMLU(subset="auxiliary_train", split="train") for _ in range(args.mmlu_epochs)], # 100K rows per epoch
+        *[GSM8K(subset="main", split="train") for _ in range(args.gsm8k_epochs)], # 8K rows per epoch
+        SimpleSpelling(size=args.simple_spelling_size, split="train"), # Simple Spelling
+        SpellingBee(size=args.spellingbee_size, split="train"), # Spelling Bee
+    ]
 train_dataset = TaskMixture(train_tasks)
-print0(f"Training mixture: {len(train_dataset):,} rows (MMLU x{args.mmlu_epochs}, GSM8K x{args.gsm8k_epochs})")
-val_dataset = TaskMixture([
-    SmolTalk(split="test"), # 24K rows in test set
-    MMLU(subset="all", split="test", stop=5200), # 14K rows in test set, use only 5.2K to match the train ratios
-    GSM8K(subset="main", split="test", stop=420), # 1.32K rows in test set, use only 420 to match the train ratios
-]) # total: 24K + 14K + 1.32K ~= 39K rows
+print0(f"Training mixture: {len(train_dataset):,} rows")
+if args.math_tool_train is not None:
+    val_dataset = TaskMixture([
+        *[MathToolJSON(filepath=path) for path in math_tool_val_paths],
+    ])
+else:
+    val_dataset = TaskMixture([
+        SmolTalk(split="test"), # 24K rows in test set
+        MMLU(subset="all", split="test", stop=5200), # 14K rows in test set, use only 5.2K to match the train ratios
+        GSM8K(subset="main", split="test", stop=420), # 1.32K rows in test set, use only 420 to match the train ratios
+    ]) # total: 24K + 14K + 1.32K ~= 39K rows
 # DataLoader is defined here, it emits inputs, targets : 2D tensors of shape (device_batch_size, max_seq_len)
 # A big problem is that we don't know the final num_iterations in advance. So we create
 # these two global variables and update them from within the data generator.
@@ -386,7 +420,7 @@ while True:
 
     # save checkpoint at the end of the run (all ranks participate so each saves its optimizer shard)
     if last_step:
-        output_dirname = args.model_tag if args.model_tag else f"d{depth}" # e.g. d12
+        output_dirname = args.output_tag or args.model_tag or f"d{depth}" # e.g. d12
         checkpoint_dir = os.path.join(base_dir, "chatsft_checkpoints", output_dirname)
         save_checkpoint(
             checkpoint_dir,
