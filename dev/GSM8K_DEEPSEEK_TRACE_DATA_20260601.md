@@ -234,3 +234,110 @@ d12_gsm8k_hard_tool_sft/model_000293.pt
 - tool-use smoke 不能掉；
 - GSM8K@100 是否高于 `4%`；
 - 20 题诊断中“变量拿错/关系方向错”是否减少。
+
+## 2026-06-01 服务器小规模 SFT 验证
+
+用户开卡后，在服务器上用 `d12_gsm8k_hard_tool_sft/model_000293.pt` 作为起点，验证 v1 decomposition trace 是否能继续提升数学能力。
+
+服务器状态：
+
+| 项 | 值 |
+|---|---|
+| GPU | NVIDIA GeForce RTX 4090 D 24GB |
+| 起点 checkpoint | `d12_gsm8k_hard_tool_sft/model_000293.pt` |
+| 数据目录 | `/root/autodl-tmp/nanochat/data/math_tool` |
+
+### 训练混合
+
+由于 `367/50` 条 DeepSeek trace 规模较小，如果直接和完整 hard bridge / calculator 数据混合会被淹没，因此远端临时构造了一个小混合数据集：
+
+| 数据 | Rows | 说明 |
+|---|---:|---|
+| DeepSeek v1 trace repeated | `2,936` | `367 * 8`，主训练信号 |
+| hard bridge subset | `1,000` | 保持多步工具调用稳定性 |
+| calculator subset | `500` | 保持基础 calculator 格式 |
+| train total | `4,436` | math-tool 训练数据 |
+| val total | `350` | `50` DeepSeek + `200` hard bridge + `100` calculator |
+
+加上 `SmolTalk 2000` 和 identity 后，训练日志中总 mixture 为 `7,436` rows。
+
+### 实验 A：正常跑完整 mixture
+
+输出 checkpoint：
+
+```text
+d12_deepseek_trace_sft/model_000091.pt
+```
+
+训练结果：
+
+| 指标 | 值 |
+|---|---:|
+| Steps | `91` |
+| 初始 val BPB | `0.2866` |
+| 最低 val BPB | `0.1604` at step `25` |
+| 最终 val BPB | `0.2025` |
+| 峰值显存 | `8794 MiB` |
+| 训练时间 | `0.52 min` |
+| GSM8K@100 | `2/100 = 2.00%` |
+| smoke 数学准确率 | `80.00%` |
+| smoke tool-call rate | `100.00%` |
+| 非数学 tool call | `0/1` |
+
+观察：
+
+- step 25 后 val BPB 开始变差，说明小数据重复训练存在过拟合；
+- GSM8K@100 从上一轮 hard bridge 的 `4%` 掉到 `2%`；
+- smoke 中有一题输出 `#### 16.0`，数值上对但 exact string 评测判错，说明还需要答案归一化或整数格式约束。
+
+### 实验 B：短训版本
+
+为了验证过拟合判断，又跑了一个短训版本：
+
+```text
+d12_deepseek_trace_sft_short/model_000006.pt
+```
+
+由于数据集实际 token 量较小，这个设置只跑了 `6` step 即完整过一遍数据。
+
+结果：
+
+| 指标 | 值 |
+|---|---:|
+| Steps | `6` |
+| 初始 val BPB | `0.2866` |
+| 最终/min val BPB | `0.1792` |
+| GSM8K@100 | `0/100 = 0.00%` |
+| smoke 数学准确率 | `40.00%` |
+| smoke tool-call rate | `80.00%` |
+| 非数学 tool call | `0/1` |
+
+观察：
+
+- 短训版本反而破坏了已有 calculator 行为；
+- 说明不是“少训一点”就能解决，而是数据规模、配比和学习率都需要重新设计。
+
+### 本轮结论
+
+这轮实验没有提升 GSM8K，反而验证了一个重要负结果：
+
+> 仅有 `367` 条 DeepSeek decomposition trace，并通过重复放大来训练，会破坏已有 tool-use 行为，不能证明 decomposition trace 路线有效。
+
+更准确的判断是：
+
+- DeepSeek trace 数据格式和质量是可用的；
+- 但规模太小，重复比例过高；
+- 训练配比太激进，DeepSeek trace 主导后模型开始模仿解释风格，但丢失了一部分原有 calculator 稳定性；
+- 需要至少扩到 `1k-3k` 条真实 GSM8K trace，或者降低学习率/冻结部分参数/减少重复倍数，并保留更多原始 GSM8K + hard bridge + calculator 数据。
+
+### 下一步建议
+
+下一轮不要继续用 `367` 条数据重复硬训。更合理的方向：
+
+1. 先给 DeepSeek API 充值或换可用 key，把 trace 扩到至少 `1,000 train / 100 val`；
+2. 重新设计混合比例，让 DeepSeek trace 只占 `20%-30%`，不要占主导；
+3. 降低学习率或减少训练步数，避免破坏已有 tool-use；
+4. 修改评测中的答案归一化，把 `16` 和 `16.0` 这类等价答案视作相同，用于辅助分析；
+5. 再做 GSM8K@100 与 20 题诊断。
+
+本轮负结果对简历故事仍然有价值：它说明我们不是盲目堆数据，而是通过实验发现“高质量 trace 的规模与配比”是关键因素。

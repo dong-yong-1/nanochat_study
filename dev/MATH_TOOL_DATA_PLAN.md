@@ -636,3 +636,19 @@ Pilot 结果：
 | `data/math_tool/gsm8k_deepseek_trace_v1_sft_summary.json` | - |
 
 结构校验通过，坏样本为 `0`。这批数据可以作为下一轮小规模 decomposition SFT 的主训练信号。
+
+### v1 小规模 SFT 结果
+
+服务器开卡后，用 `d12_gsm8k_hard_tool_sft/model_000293.pt` 作为起点做了两轮小规模验证：
+
+| Run | Checkpoint | val BPB | smoke 数学准确率 | GSM8K@100 |
+|---|---|---:|---:|---:|
+| deepseek trace full-mix | `d12_deepseek_trace_sft/model_000091.pt` | `0.2025` final, `0.1604` min | `80%` | `2/100 = 2%` |
+| deepseek trace short | `d12_deepseek_trace_sft_short/model_000006.pt` | `0.1792` | `40%` | `0/100 = 0%` |
+
+结论：
+
+- 当前 `367/50` 条 DeepSeek trace 太少，重复放大后训练会破坏已有能力；
+- full-mix 在 step 25 后出现 val BPB 反弹，存在过拟合；
+- short run 没有解决问题，反而降低 tool-use smoke；
+- 下一轮需要扩数据到至少 `1k+`，并降低 DeepSeek trace 在混合中的占比。
